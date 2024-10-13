@@ -1,0 +1,50 @@
+version: "3"
+services:
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - .:/kinkyu_bot
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=mysql2://root:password@db:3306/kinkyu_bot_development
+      - MYSQL_ROOT_PASSWORD=password
+    tty: true
+    stdin_open: true
+
+  db:
+    image: mysql:8.0
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: kinkyu_bot_development
+    ports:
+      - "3307:3306"
+    command: --default-authentication-plugin=mysql_native_password
+
+  esbuild:
+    build: .
+    command: yarn build --watch
+    volumes:
+      - .:/kinkyu_bot
+    environment:
+      - RAILS_ENV=development
+    tty: true
+    stdin_open: true
+
+  tailwindcss:
+    build: .
+    command: yarn build:css --watch
+    volumes:
+      - .:/kinkyu_bot
+    environment:
+      - RAILS_ENV=development
+    tty: true
+    stdin_open: true
+
+volumes:
+  mysql_data:

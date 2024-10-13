@@ -1,18 +1,33 @@
-FROM public.ecr.aws/lambda/ruby:3.2
+FROM ruby:3.2.2
 
-# システムの依存関係をインストール
-RUN yum install -y gcc make
+# Install node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+RUN apt-get install -y nodejs
 
-# 作業ディレクトリを設定
-WORKDIR /var/task
+# Install yarn
+RUN npm install -g yarn
 
-# Gemfileとソースコードをコピー
-COPY Gemfile Gemfile.lock ./
-COPY lambda_function.rb ./
+# Install packages
+RUN apt-get update -qq && \
+    apt-get install -y default-mysql-client && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Bundlerをインストールし、依存関係をインストール
-RUN gem install bundler
+WORKDIR /kinkyu_bot
+COPY Gemfile /kinkyu_bot/Gemfile
+COPY Gemfile.lock /kinkyu_bot/Gemfile.lock
+
+# Add this line to update Gemfile.lock with the current platform
+RUN bundle lock --add-platform x86_64-linux
+
 RUN bundle install
+COPY . /kinkyu_bot
 
-# Lambda関数のハンドラを設定
-CMD [ "lambda_function.lambda_handler" ]
+# Add a script to be executed every time the container starts.
+COPY entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+EXPOSE 3000
+
+# Start the main process.
+CMD ["rails", "server", "-b", "0.0.0.0"]
