@@ -1,0 +1,29 @@
+<div id="<%= dom_id video %>" class="shadow-md rounded px-8 pt-6 pb-8 mb-4">
+  <h2 class="text-xl font-bold mb-4"><%= video.title %></h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <p class="mb-2">
+        <strong class="font-medium">Channel:</strong>
+        <%= video.channel %>
+      </p>
+
+      <p class="mb-2">
+        <strong class="font-medium">Subscribers:</strong>
+        <%= number_with_delimiter(video.subs) %>
+      </p>
+
+      <p class="mb-2">
+        <strong class="font-medium">Published at:</strong>
+        <%= video.published_at.strftime("%Y-%m-%d %H:%M:%S") %>
+      </p>
+    </div>
+
+    <div>
+      <p class="mb-2">
+        <strong class="font-medium">URL:</strong>
+        <%= link_to "Watch on YouTube", video.url, target: "_blank", class: "text-blue-500 hover:text-blue-700" %>
+      </p>
+    </div>
+  </div>
+</div>

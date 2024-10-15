@@ -69,3 +69,5 @@ end
 gem 'tailwindcss-rails'
 gem 'cssbundling-rails'
 gem 'jsbundling-rails'
+gem 'google-api-client', '~> 0.53.0'
+gem 'kaminari'

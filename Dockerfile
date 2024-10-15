@@ -14,18 +14,20 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /kinkyu_bot
-COPY Gemfile /kinkyu_bot/Gemfile
-COPY Gemfile.lock /kinkyu_bot/Gemfile.lock
 
-# Add this line to update Gemfile.lock with the current platform
+# コピーする順序を変更し、必要なファイルのみをコピー
+COPY package.json yarn.lock ./
+RUN yarn install
+
+COPY Gemfile Gemfile.lock ./
 RUN bundle lock --add-platform x86_64-linux
-
 RUN bundle install
-COPY . /kinkyu_bot
 
-# Add a script to be executed every time the container starts.
+# アプリケーションコードをコピー（bin ディレクトリを除外）
+COPY app config db lib public vendor config.ru Rakefile ./
 COPY entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/entrypoint.sh
+
 ENTRYPOINT ["entrypoint.sh"]
 EXPOSE 3000
 

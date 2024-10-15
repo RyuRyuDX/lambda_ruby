@@ -1,7 +1,9 @@
 version: "3"
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - .:/kinkyu_bot
@@ -27,7 +29,9 @@ services:
     command: --default-authentication-plugin=mysql_native_password
 
   esbuild:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: yarn build --watch
     volumes:
       - .:/kinkyu_bot
@@ -37,7 +41,9 @@ services:
     stdin_open: true
 
   tailwindcss:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: yarn build:css --watch
     volumes:
       - .:/kinkyu_bot
