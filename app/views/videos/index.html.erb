@@ -5,17 +5,48 @@
 
   <% content_for :title, "Videos" %>
 
-  <div class="flex justify-between items-center">
+  <div class="flex justify-between items-center mb-4">
     <h1 class="font-bold text-4xl">Videos</h1>
-    <%= link_to "New video", new_video_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white block font-medium" %>
+  </div>
+
+  <!-- 合計件数の表示 -->
+  <p class="text-gray-600 mb-2">Total: <%= @videos.total_count %> videos</p>
+
+  <div class="flex justify-end items-center my-4">
+    <label for="sort" class="mr-2 font-medium">Sort by:</label>
+    <select id="sort" class="rounded-lg py-2 px-3 border-gray-300" onchange="sortVideos()">
+      <option value="newest" <%= params[:sort] == 'newest' ? 'selected' : '' %>>Newest</option>
+      <option value="oldest" <%= params[:sort] == 'oldest' ? 'selected' : '' %>>Oldest</option>
+      <option value="subscribers_desc" <%= params[:sort] == 'subscribers_desc' ? 'selected' : '' %>>Most Subscribers</option>
+      <option value="subscribers_asc" <%= params[:sort] == 'subscribers_asc' ? 'selected' : '' %>>Least Subscribers</option>
+    </select>
+  </div>
+
+  <!-- New Video Form -->
+  <div class="my-4">
+    <%= form_with url: fetch_videos_videos_path, method: :get, local: true do |f| %>
+      <div class="flex items-center mb-4">
+        <label for="min_subscribers" class="mr-2 font-medium">Minimum Subscribers:</label>
+        <%= f.number_field :min_subscribers, value: params[:min_subscribers] || 10000, class: "rounded-lg py-2 px-3 border-gray-300" %>
+      </div>
+      <div class="flex items-center mb-4">
+        <label for="days_ago" class="mr-2 font-medium">Days Ago:</label>
+        <%= f.number_field :days_ago, value: params[:days_ago] || 7, class: "rounded-lg py-2 px-3 border-gray-300" %>
+      </div>
+      <div class="flex items-center mb-4">
+        <label for="max_results" class="mr-2 font-medium">max_results:</label>
+        <%= f.number_field :max_results, value: params[:max_results] || 10, class: "rounded-lg py-2 px-3 border-gray-300" %>
+      </div>
+      <%= f.submit "Fetch Videos", class: "rounded-lg py-3 px-5 bg-blue-600 text-white block font-medium" %>
+    <% end %>
   </div>
 
   <div id="videos" class="min-w-full">
-    <% @videos.each do |video| %>
-      <%= render video %>
-      <p>
-        <%= link_to "Show this video", video, class: "ml-2 rounded-lg py-3 px-5 inline-block font-medium" %>
-      </p>
+    <% @videos.each_with_index do |video, index| %>
+      <div class="video-card">
+        <p class="font-medium">#<%= index + 1 %></p> <!-- 各カードに番号を表示 -->
+        <%= render video %>
+      </div>
     <% end %>
   </div>
 
@@ -23,3 +54,12 @@
     <%= paginate @videos, class: "pagination" %>
   </div>
 </div>
+
+<script>
+  function sortVideos() {
+    const sortValue = document.getElementById('sort').value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', sortValue);
+    window.location.href = url.toString();
+  }
+</script>
